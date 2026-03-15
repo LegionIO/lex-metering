@@ -16,7 +16,6 @@ Captures LLM token usage metrics per task for cost attribution and intelligent r
 - **Ruby**: `>= 3.4`
 - **License**: MIT
 - **GitHub**: https://github.com/LegionIO/lex-metering
-- **Note**: No `.git` directory yet (created 2026-03-13, not yet pushed to GitHub)
 
 ## File Structure
 
