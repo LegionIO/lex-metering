@@ -302,4 +302,62 @@ RSpec.describe Legion::Extensions::Metering::Runners::Metering do
       )
     end
   end
+
+  describe '#cleanup_old_records' do
+    let(:filtered_dataset) do
+      ds = double('filtered_dataset')
+      allow(ds).to receive(:delete).and_return(42)
+      ds
+    end
+
+    let(:metering_dataset) do
+      ds = double('metering_dataset')
+      allow(ds).to receive(:where).and_return(filtered_dataset)
+      ds
+    end
+
+    let(:connection) do
+      conn = double('connection')
+      allow(conn).to receive(:[]).with(:metering_records).and_return(metering_dataset)
+      conn
+    end
+
+    before do
+      stub_const('Legion::Data', double('Legion::Data', connection: connection))
+      stub_const('Legion::Logging', double('Legion::Logging'))
+      allow(Legion::Logging).to receive(:info)
+    end
+
+    it 'deletes records older than the cutoff and returns purge count' do
+      result = runner.cleanup_old_records
+      expect(result[:purged]).to eq(42)
+    end
+
+    it 'uses 90-day retention by default' do
+      result = runner.cleanup_old_records
+      expect(result[:retention_days]).to eq(90)
+    end
+
+    it 'accepts a custom retention_days parameter' do
+      result = runner.cleanup_old_records(retention_days: 30)
+      expect(result[:retention_days]).to eq(30)
+    end
+
+    it 'returns a cutoff Time in the result' do
+      result = runner.cleanup_old_records
+      expect(result[:cutoff]).to be_a(Time)
+    end
+
+    it 'logs an info message' do
+      expect(Legion::Logging).to receive(:info).with(a_string_including('[metering] cleanup:'))
+      runner.cleanup_old_records
+    end
+
+    it 'returns purged: 0 when Legion::Data is not available' do
+      hide_const('Legion::Data')
+      result = runner.cleanup_old_records
+      expect(result[:purged]).to eq(0)
+      expect(result[:cutoff]).to be_nil
+    end
+  end
 end

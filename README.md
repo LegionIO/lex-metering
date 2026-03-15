@@ -41,6 +41,17 @@ stats = Legion::Extensions::Metering::Runners::Metering.routing_stats
 
 Requires `legion-data`. Creates the `metering_records` table via Sequel migration.
 
+## Record Retention
+
+Metering records are pruned automatically by the `Cleanup` actor, which runs once per day. The default retention period is 90 days. Records with a `recorded_at` older than the cutoff are permanently deleted.
+
+To trigger cleanup manually:
+
+```ruby
+Legion::Extensions::Metering::Runners::Metering.cleanup_old_records(retention_days: 90)
+# => { purged: 1234, retention_days: 90, cutoff: 2025-12-15 00:00:00 UTC }
+```
+
 ## Related
 
 - [LegionIO](https://github.com/LegionIO/LegionIO) — Framework

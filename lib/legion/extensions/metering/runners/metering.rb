@@ -84,6 +84,15 @@ module Legion
               avg_latency_by_provider: ds.group(:provider).select_append { avg(latency_ms).as(avg_latency) }.all
             }
           end
+
+          def cleanup_old_records(retention_days: 90, **)
+            return { purged: 0, retention_days: retention_days, cutoff: nil } unless defined?(Legion::Data) && Legion::Data.connection
+
+            cutoff = Time.now.utc - (retention_days * 86_400)
+            count = Legion::Data.connection[:metering_records].where { recorded_at < cutoff }.delete
+            Legion::Logging.info "[metering] cleanup: purged=#{count} retention_days=#{retention_days} cutoff=#{cutoff}"
+            { purged: count, retention_days: retention_days, cutoff: cutoff }
+          end
         end
       end
     end

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-03-15
+
+### Added
+- `cleanup_old_records` runner method with configurable retention (default 90 days)
+- `Cleanup` periodic actor (runs daily) to prune old metering records
+
 ## [0.1.0] - 2026-03-13
 
 ### Added
