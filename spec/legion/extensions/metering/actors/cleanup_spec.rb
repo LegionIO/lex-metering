@@ -15,7 +15,7 @@ $LOADED_FEATURES << 'legion/extensions/actors/every'
 
 require_relative '../../../../../lib/legion/extensions/metering/actors/cleanup'
 
-RSpec.describe Legion::Extensions::Metering::Actors::Cleanup do
+RSpec.describe Legion::Extensions::Metering::Actor::Cleanup do
   subject(:actor) { described_class.new }
 
   describe '#runner_class' do

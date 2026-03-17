@@ -3,7 +3,7 @@
 module Legion
   module Extensions
     module Metering
-      module Actors
+      module Actor
         class Cleanup < Legion::Extensions::Actors::Every
           def runner_class
             'Legion::Extensions::Metering::Runners::Metering'

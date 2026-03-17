@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.2] - 2026-03-17
+
+### Changed
+- Renamed `module Actors` to `module Actor` (singular) in `actors/cleanup.rb` to match LegionIO builder convention
+
 ## [0.1.1] - 2026-03-15
 
 ### Added
