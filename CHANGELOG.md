@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.4] - 2026-03-18
+
+### Changed
+- `record` no longer writes directly to database; returns hash only for RabbitMQ publishing
+- `data_required?` changed to `false` — extension loads without legion-data
+
 ## [0.1.3] - 2026-03-18
 
 ### Fixed

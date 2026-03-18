@@ -29,7 +29,6 @@ module Legion
               recorded_at:         Time.now.utc
             }
 
-            Legion::Data.connection[:metering_records].insert(record) if defined?(Legion::Data) && Legion::Data.connection
             Legion::Logging.debug "[metering] recorded: provider=#{provider} model=#{model_id} " \
                                   "tokens=#{record[:total_tokens]} latency=#{latency_ms}ms wall_clock=#{wall_clock_ms}ms"
             record

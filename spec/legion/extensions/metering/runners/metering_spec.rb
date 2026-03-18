@@ -16,16 +16,7 @@ RSpec.describe Legion::Extensions::Metering::Runners::Metering do
   let(:runner) { Class.new { include Legion::Extensions::Metering::Runners::Metering }.new }
 
   describe '#record' do
-    let(:legion_data_double) do
-      table = double('dataset')
-      allow(table).to receive(:insert)
-      conn = double('connection')
-      allow(conn).to receive(:[]).with(:metering_records).and_return(table)
-      conn
-    end
-
     before do
-      stub_const('Legion::Data', double('Legion::Data', connection: legion_data_double))
       stub_const('Legion::Logging', double('Legion::Logging'))
       allow(Legion::Logging).to receive(:debug)
     end
@@ -60,10 +51,10 @@ RSpec.describe Legion::Extensions::Metering::Runners::Metering do
       expect(result[:recorded_at].utc?).to be true
     end
 
-    it 'inserts the record into the database' do
-      table = legion_data_double[:metering_records]
-      expect(table).to receive(:insert)
-      runner.record(provider: 'anthropic', model_id: 'claude-opus-4-6')
+    it 'does not write to database directly' do
+      hide_const('Legion::Data')
+      result = runner.record(provider: 'anthropic', model_id: 'claude-opus-4-6')
+      expect(result[:provider]).to eq('anthropic')
     end
 
     it 'logs a debug message' do

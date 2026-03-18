@@ -11,7 +11,7 @@ Captures LLM token usage metrics per task for cost attribution and intelligent r
 ## Gem Info
 
 - **Gem name**: `lex-metering`
-- **Version**: `0.1.3`
+- **Version**: `0.1.4`
 - **Module**: `Legion::Extensions::Metering`
 - **Ruby**: `>= 3.4`
 - **License**: MIT
@@ -62,14 +62,14 @@ lib/legion/extensions/metering/
 
 ## Integration Points
 
-- **legion-data**: `data_required? true` — will not load if DB unavailable. Accesses `metering_records` as a raw Sequel dataset (no Sequel::Model subclass).
+- **legion-data**: `data_required? false` — loads without DB. `record` returns hash only (for RabbitMQ publishing). Query methods (`worker_costs`, `team_costs`, `routing_stats`, `cleanup_old_records`) still access `metering_records` as a raw Sequel dataset when `Legion::Data` is available.
 - **LegionIO MCP**: `legion.routing_stats` MCP tool calls `routing_stats` runner
 - **REST API**: `GET /api/tasks/:id` includes a `:metering` block when lex-metering data exists for the task
 - **Digital Workers**: `legion worker costs` CLI command delegates to `worker_costs` runner
 
 ## Development Notes
 
-- Extension has `data_required? true` (both at module level and instance level) — will skip loading if `legion-data` is not connected
+- Extension has `data_required? false` — loads without `legion-data`; `record` builds hash only (no DB insert), query methods still require `Legion::Data`
 - No explicit actors — gets auto-generated subscription actors from the framework
 - `routing_stats` uses `select_append { avg(latency_ms).as(avg_latency) }` — Sequel virtual row syntax
 - Time interval filtering uses `Sequel.lit('recorded_at >= ?', cutoff)` with Ruby `Time` arithmetic for cross-database compatibility (PostgreSQL, SQLite, MySQL)

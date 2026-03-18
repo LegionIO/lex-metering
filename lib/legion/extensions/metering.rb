@@ -8,11 +8,11 @@ module Legion
       extend Legion::Extensions::Core if Legion::Extensions.const_defined? :Core
 
       def self.data_required?
-        true
+        false
       end
 
       def data_required?
-        true
+        false
       end
     end
   end
