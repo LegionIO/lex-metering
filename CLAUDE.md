@@ -11,7 +11,7 @@ Captures LLM token usage metrics per task for cost attribution and intelligent r
 ## Gem Info
 
 - **Gem name**: `lex-metering`
-- **Version**: `0.1.0`
+- **Version**: `0.1.3`
 - **Module**: `Legion::Extensions::Metering`
 - **Ruby**: `>= 3.4`
 - **License**: MIT
@@ -72,4 +72,4 @@ lib/legion/extensions/metering/
 - Extension has `data_required? true` (both at module level and instance level) — will skip loading if `legion-data` is not connected
 - No explicit actors — gets auto-generated subscription actors from the framework
 - `routing_stats` uses `select_append { avg(latency_ms).as(avg_latency) }` — Sequel virtual row syntax
-- Time interval filtering uses `Sequel.lit("CURRENT_TIMESTAMP - INTERVAL '...'")` which is PostgreSQL syntax; SQLite uses different interval syntax (known limitation)
+- Time interval filtering uses `Sequel.lit('recorded_at >= ?', cutoff)` with Ruby `Time` arithmetic for cross-database compatibility (PostgreSQL, SQLite, MySQL)

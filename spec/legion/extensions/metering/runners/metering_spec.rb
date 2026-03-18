@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+
+unless defined?(Sequel)
+  module Sequel
+    def self.lit(_sql, *_args)
+      :sequel_lit_placeholder
+    end
+  end
+end
+
 require 'legion/extensions/metering/runners/metering'
 
 RSpec.describe Legion::Extensions::Metering::Runners::Metering do

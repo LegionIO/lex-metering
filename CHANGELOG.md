@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.3] - 2026-03-18
+
+### Fixed
+- `worker_costs` period filtering now uses cross-DB `Sequel.lit('recorded_at >= ?', cutoff)` with Ruby time arithmetic instead of PostgreSQL-only `CURRENT_TIMESTAMP - INTERVAL` syntax
+
 ## [0.1.2] - 2026-03-17
 
 ### Changed

@@ -5,6 +5,8 @@ module Legion
     module Metering
       module Runners
         module Metering
+          PERIOD_DAYS = { 'daily' => 1, 'weekly' => 7, 'monthly' => 30 }.freeze
+
           def record(worker_id: nil, task_id: nil, provider: nil, model_id: nil,
                      input_tokens: 0, output_tokens: 0, thinking_tokens: 0,
                      input_context_bytes: 0, latency_ms: 0, routing_reason: nil,
@@ -35,15 +37,7 @@ module Legion
 
           def worker_costs(worker_id:, period: 'daily', **)
             ds = Legion::Data.connection[:metering_records].where(worker_id: worker_id)
-
-            case period
-            when 'daily'
-              ds = ds.where { recorded_at >= Sequel.lit("CURRENT_TIMESTAMP - INTERVAL '1 day'") }
-            when 'weekly'
-              ds = ds.where { recorded_at >= Sequel.lit("CURRENT_TIMESTAMP - INTERVAL '7 days'") }
-            when 'monthly'
-              ds = ds.where { recorded_at >= Sequel.lit("CURRENT_TIMESTAMP - INTERVAL '30 days'") }
-            end
+            ds = apply_period_filter(ds, period)
 
             {
               worker_id:       worker_id,
@@ -92,6 +86,16 @@ module Legion
             count = Legion::Data.connection[:metering_records].where { recorded_at < cutoff }.delete
             Legion::Logging.info "[metering] cleanup: purged=#{count} retention_days=#{retention_days} cutoff=#{cutoff}"
             { purged: count, retention_days: retention_days, cutoff: cutoff }
+          end
+
+          private
+
+          def apply_period_filter(dataset, period)
+            days = PERIOD_DAYS[period]
+            return dataset unless days
+
+            cutoff = Time.now.utc - (days * 86_400)
+            dataset.where(::Sequel.lit('recorded_at >= ?', cutoff))
           end
         end
       end
