@@ -6,7 +6,7 @@ Captures LLM token usage, latency, and routing metrics per task for cost attribu
 
 ## Purpose
 
-`lex-metering` records every LLM call made through a Legion digital worker — tokens consumed, latency, wall-clock time, CPU time, external API calls, and routing reason. Data is persisted to the `metering_records` table and queried for cost attribution and routing statistics.
+`lex-metering` records every LLM call made through a Legion digital worker: tokens consumed (input, output, thinking), latency, wall-clock time, CPU time, external API calls, and routing reason. Data is persisted to the `metering_records` table and queried for cost attribution and routing statistics.
 
 ## Installation
 
@@ -39,7 +39,7 @@ stats = Legion::Extensions::Metering::Runners::Metering.routing_stats
 
 ## Database
 
-Requires `legion-data`. Creates the `metering_records` table via Sequel migration.
+Requires `legion-data`. Creates the `metering_records` table via Sequel migration. Extension loads without `legion-data` (`data_required? false`) — `record` returns a hash for RMQ publishing; query methods require `Legion::Data` to be available.
 
 ## Record Retention
 
@@ -52,8 +52,16 @@ Legion::Extensions::Metering::Runners::Metering.cleanup_old_records(retention_da
 # => { purged: 1234, retention_days: 90, cutoff: 2025-12-15 00:00:00 UTC }
 ```
 
+## Query Methods
+
+| Method | Parameters | Period Values |
+|--------|-----------|---------------|
+| `worker_costs` | `worker_id:`, `period: 'daily'` | `'daily'`, `'weekly'`, `'monthly'` |
+| `team_costs` | `team:`, `period: 'daily'` | `'daily'`, `'weekly'`, `'monthly'` |
+| `routing_stats` | `worker_id: nil` | — |
+
 ## Related
 
-- [LegionIO](https://github.com/LegionIO/LegionIO) — Framework
-- [legion-data](https://github.com/LegionIO/legion-data) — Persistence layer
-- [Digital Worker Platform](../../../docs/spec-digital-worker-integration.md) — Cost governance
+- [LegionIO](https://github.com/LegionIO/LegionIO) - Framework
+- [legion-data](https://github.com/LegionIO/legion-data) - Persistence layer
+- [lex-llm-gateway](https://github.com/LegionIO/lex-llm-gateway) - Gateway that publishes metering events over RMQ

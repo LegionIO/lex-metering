@@ -22,11 +22,13 @@ Captures LLM token usage metrics per task for cost attribution and intelligent r
 ```
 lib/legion/extensions/metering/
   version.rb
+  actors/
+    cleanup.rb    # Every actor (86400s/daily): calls cleanup_old_records
   data/
     migrations/
       001_add_metering_records.rb  # Creates metering_records table
   runners/
-    metering.rb   # record, worker_costs, team_costs, routing_stats
+    metering.rb   # record, worker_costs, team_costs, routing_stats, cleanup_old_records
 ```
 
 ## Database Schema (`metering_records`)
@@ -57,8 +59,13 @@ lib/legion/extensions/metering/
 | `worker_costs` | `worker_id:`, `period: 'daily'` | Aggregated token/call/latency metrics |
 | `team_costs` | `team:`, `period: 'daily'` | Team-wide aggregation across all team workers |
 | `routing_stats` | `worker_id: nil` | Breakdowns by routing_reason, provider, model, avg latency |
+| `cleanup_old_records` | `retention_days: 90` | Deletes records older than cutoff; returns `{ purged:, retention_days:, cutoff: }` |
 
 `period` values: `'daily'`, `'weekly'`, `'monthly'`
+
+## Cleanup Actor
+
+`Actor::Cleanup` is an Every actor that calls `cleanup_old_records` once per day (86,400s). It runs with `run_now? false`, `use_runner? false`, `check_subtask? false`, `generate_task? false` — a minimal background trigger that delegates directly to the runner method.
 
 ## Integration Points
 
@@ -70,6 +77,6 @@ lib/legion/extensions/metering/
 ## Development Notes
 
 - Extension has `data_required? false` — loads without `legion-data`; `record` builds hash only (no DB insert), query methods still require `Legion::Data`
-- No explicit actors — gets auto-generated subscription actors from the framework
+- Has one explicit actor (`Cleanup`); auto-generated subscription actors are created for runner methods
 - `routing_stats` uses `select_append { avg(latency_ms).as(avg_latency) }` — Sequel virtual row syntax
 - Time interval filtering uses `Sequel.lit('recorded_at >= ?', cutoff)` with Ruby `Time` arithmetic for cross-database compatibility (PostgreSQL, SQLite, MySQL)
