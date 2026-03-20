@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.5] - 2026-03-20
+
+### Added
+- `Helpers::Economics` module with `payroll_summary`, `worker_report`, and `budget_forecast` methods for labor economics reporting
+
 ## [0.1.4] - 2026-03-18
 
 ### Changed
