@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.7] - 2026-03-22
+
+### Changed
+- Updated `legionio` dependency constraint to `>= 1.4.123`
+
 ## [0.1.6] - 2026-03-21
 
 ### Added

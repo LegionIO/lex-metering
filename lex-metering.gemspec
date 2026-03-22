@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'legionio'
+  spec.add_dependency 'legionio', '>= 1.4.123'
 
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
