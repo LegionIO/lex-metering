@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'legion/extensions/metering/version'
+require 'legion/extensions/metering/runners/cost_optimizer'
 
 module Legion
   module Extensions

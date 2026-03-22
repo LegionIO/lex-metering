@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.6] - 2026-03-21
+
+### Added
+- `Runners::CostOptimizer` module with `analyze_costs` method for weekly LLM cost analysis
+- `Actor::CostOptimizer` periodic actor (runs weekly) to trigger cost analysis
+- Cost rate tables for Anthropic, OpenAI, Bedrock, and Azure AI models
+- LLM-powered recommendation generation for model rightsizing
+
 ## [0.1.5] - 2026-03-20
 
 ### Added
