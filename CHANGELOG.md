@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.9] - 2026-03-23
+
+### Added
+- Migration 002: add cost_usd, status, event_type, extension, runner_function columns to metering_records
+- Metering runner now accepts and stores trace context fields (cost_usd, status, event_type, extension, runner_function)
+
 ## [0.1.8] - 2026-03-22
 
 ### Changed

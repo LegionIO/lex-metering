@@ -10,7 +10,9 @@ module Legion
           def record(worker_id: nil, task_id: nil, provider: nil, model_id: nil,
                      input_tokens: 0, output_tokens: 0, thinking_tokens: 0,
                      input_context_bytes: 0, latency_ms: 0, routing_reason: nil,
-                     wall_clock_ms: 0, cpu_time_ms: 0, external_api_calls: 0, **)
+                     wall_clock_ms: 0, cpu_time_ms: 0, external_api_calls: 0,
+                     cost_usd: 0.0, status: nil, event_type: nil,
+                     extension: nil, runner_function: nil, **)
             record = {
               worker_id:           worker_id,
               task_id:             task_id,
@@ -26,6 +28,11 @@ module Legion
               cpu_time_ms:         cpu_time_ms,
               external_api_calls:  external_api_calls,
               routing_reason:      routing_reason,
+              cost_usd:            cost_usd.to_f,
+              status:              status,
+              event_type:          event_type,
+              extension:           extension,
+              runner_function:     runner_function,
               recorded_at:         Time.now.utc
             }
 

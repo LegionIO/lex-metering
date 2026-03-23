@@ -45,6 +45,32 @@ RSpec.describe Legion::Extensions::Metering::Runners::Metering do
       expect(result[:thinking_tokens]).to eq(0)
     end
 
+    it 'includes trace columns with defaults' do
+      result = runner.record(provider: 'openai', model_id: 'gpt-4o')
+      expect(result[:cost_usd]).to eq(0.0)
+      expect(result[:status]).to be_nil
+      expect(result[:event_type]).to be_nil
+      expect(result[:extension]).to be_nil
+      expect(result[:runner_function]).to be_nil
+    end
+
+    it 'accepts trace columns when provided' do
+      result = runner.record(
+        provider:        'anthropic',
+        model_id:        'claude-opus-4-6',
+        cost_usd:        0.045,
+        status:          'success',
+        event_type:      'llm_completion',
+        extension:       'lex-http',
+        runner_function: 'Http::Runners::Request.get'
+      )
+      expect(result[:cost_usd]).to eq(0.045)
+      expect(result[:status]).to eq('success')
+      expect(result[:event_type]).to eq('llm_completion')
+      expect(result[:extension]).to eq('lex-http')
+      expect(result[:runner_function]).to eq('Http::Runners::Request.get')
+    end
+
     it 'sets recorded_at to a UTC Time' do
       result = runner.record
       expect(result[:recorded_at]).to be_a(Time)
