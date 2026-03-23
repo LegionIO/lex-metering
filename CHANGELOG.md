@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.8] - 2026-03-22
+
+### Changed
+- Migrated gemspec runtime dependency from `legionio` monolith to individual sub-gems: `legion-cache >= 1.3.11`, `legion-crypt >= 1.4.9`, `legion-data >= 1.4.17`, `legion-json >= 1.2.1`, `legion-logging >= 1.3.2`, `legion-settings >= 1.3.14`, `legion-transport >= 1.3.9`
+- Updated spec_helper to require real sub-gem helpers; added `Helpers::Lex` stub and `Actors::Every` base class stub
+
 ## [0.1.7] - 2026-03-22
 
 ### Changed
