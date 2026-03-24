@@ -60,6 +60,35 @@ total_cost: 0.15 },
       end
     end
 
+    context 'when generate_recommendations passes caller identity to LLM' do
+      let(:llm_spy) do
+        Module.new do
+          @last_kwargs = nil
+          def self.chat(**kwargs)
+            @last_kwargs = kwargs
+            { content: '{"recommendations":[]}' }
+          end
+
+          class << self
+            attr_reader :last_kwargs
+          end
+        end
+      end
+
+      before do
+        stub_const('Legion::LLM', llm_spy)
+        allow(optimizer).to receive(:collect_cost_data).and_return([
+                                                                     { extension: 'lex-test', model: 'claude-sonnet-4-6',
+total_tokens: 1000, total_cost: 0.01, call_count: 5 }
+                                                                   ])
+      end
+
+      it 'passes caller identity to Legion::LLM.chat' do
+        optimizer.analyze_costs(window_days: 7)
+        expect(Legion::LLM.last_kwargs[:caller]).to eq({ extension: 'lex-metering', operation: 'cost_optimization' })
+      end
+    end
+
     context 'when top_n limits results' do
       before do
         drivers = (1..15).map do |i|

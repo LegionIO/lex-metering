@@ -70,7 +70,7 @@ module Legion
             return { recommendations: [] } unless defined?(Legion::LLM)
 
             prompt = build_recommendation_prompt(drivers)
-            result = Legion::LLM.chat(message: prompt)
+            result = Legion::LLM.chat(message: prompt, caller: { extension: 'lex-metering', operation: 'cost_optimization' })
             ::JSON.parse(result[:content] || '{}', symbolize_names: true)
           rescue StandardError
             { recommendations: [] }

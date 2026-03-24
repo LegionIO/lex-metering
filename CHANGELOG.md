@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.10] - 2026-03-23
+
+### Changed
+- `CostOptimizer#generate_recommendations` passes `caller: { extension: 'lex-metering', operation: 'cost_optimization' }` to `Legion::LLM.chat` for attribution
+
 ## [0.1.9] - 2026-03-23
 
 ### Added
