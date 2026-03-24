@@ -11,7 +11,29 @@ unless defined?(Legion::Extensions::Actors::Every)
   end
 end
 
+unless defined?(Legion::Extensions::Actors::Singleton)
+  module Legion
+    module Extensions
+      module Actors
+        module Singleton
+          def self.included(base)
+            base.prepend(ExecutionGuard)
+          end
+
+          def singleton_role
+            self.class.name&.gsub('::', '_')&.downcase || 'unknown'
+          end
+
+          module ExecutionGuard
+          end
+        end
+      end
+    end
+  end
+end
+
 $LOADED_FEATURES << 'legion/extensions/actors/every'
+$LOADED_FEATURES << 'legion/extensions/actors/singleton'
 
 require_relative '../../../../../lib/legion/extensions/metering/actors/cleanup'
 
@@ -57,6 +79,16 @@ RSpec.describe Legion::Extensions::Metering::Actor::Cleanup do
   describe '#generate_task?' do
     it 'returns false' do
       expect(actor.generate_task?).to be false
+    end
+  end
+
+  describe 'singleton enforcement' do
+    it 'includes Singleton mixin when available' do
+      expect(described_class.ancestors).to include(Legion::Extensions::Actors::Singleton)
+    end
+
+    it 'has a singleton_role derived from class name' do
+      expect(actor.singleton_role).to eq('legion_extensions_metering_actor_cleanup')
     end
   end
 end

@@ -5,6 +5,8 @@ module Legion
     module Metering
       module Actor
         class Cleanup < Legion::Extensions::Actors::Every
+          include Legion::Extensions::Actors::Singleton if defined?(Legion::Extensions::Actors::Singleton)
+
           def runner_class
             'Legion::Extensions::Metering::Runners::Metering'
           end
