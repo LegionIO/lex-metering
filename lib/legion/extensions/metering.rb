@@ -2,6 +2,7 @@
 
 require 'legion/extensions/metering/version'
 require 'legion/extensions/metering/runners/cost_optimizer'
+require 'legion/extensions/metering/runners/rollup'
 
 module Legion
   module Extensions

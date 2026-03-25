@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.11] - 2026-03-25
+
+### Added
+- `Runners::Rollup` module with `rollup_hour` (groups `metering_records` by worker/provider/model into `metering_hourly_rollup` with upsert) and `purge_raw_records` (deletes raw records older than retention window, default 7 days)
+- `Actors::Rollup` Every actor that triggers `rollup_hour` once per hour (3600s), with `run_now? false`
+- Runner required from `legion/extensions/metering` entry point
+
 ## [0.1.10] - 2026-03-23
 
 ### Changed
