@@ -11,7 +11,7 @@ Captures LLM token usage metrics per task for cost attribution and intelligent r
 ## Gem Info
 
 - **Gem name**: `lex-metering`
-- **Version**: `0.1.4`
+- **Version**: `0.1.6`
 - **Module**: `Legion::Extensions::Metering`
 - **Ruby**: `>= 3.4`
 - **License**: MIT
