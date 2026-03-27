@@ -3,7 +3,7 @@
 module Legion
   module Extensions
     module Metering
-      module Actors
+      module Actor
         class Rollup < Legion::Extensions::Actors::Every
           include Legion::Extensions::Actors::Singleton if defined?(Legion::Extensions::Actors::Singleton)
 

@@ -37,7 +37,7 @@ $LOADED_FEATURES << 'legion/extensions/actors/singleton' unless $LOADED_FEATURES
 
 require_relative '../../../../../lib/legion/extensions/metering/actors/rollup'
 
-RSpec.describe Legion::Extensions::Metering::Actors::Rollup do
+RSpec.describe Legion::Extensions::Metering::Actor::Rollup do
   subject(:actor) { described_class.new }
 
   describe '#runner_class' do
@@ -88,7 +88,7 @@ RSpec.describe Legion::Extensions::Metering::Actors::Rollup do
     end
 
     it 'has a singleton_role derived from class name' do
-      expect(actor.singleton_role).to eq('legion_extensions_metering_actors_rollup')
+      expect(actor.singleton_role).to eq('legion_extensions_metering_actor_rollup')
     end
   end
 end

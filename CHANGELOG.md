@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.12] - 2026-03-27
+
+### Fixed
+- Rollup actor: `module Actors` → `module Actor` to match framework convention
+
 ## [0.1.11] - 2026-03-25
 
 ### Added
