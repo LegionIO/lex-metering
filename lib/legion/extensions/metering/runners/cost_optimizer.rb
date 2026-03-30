@@ -5,6 +5,8 @@ module Legion
     module Metering
       module Runners
         module CostOptimizer
+          extend self
+
           def analyze_costs(window_days: 7, top_n: 10)
             drivers = collect_cost_data(window_days: window_days)
             return { status: 'no_data', window_days: window_days, cost_drivers: [], recommendations: [] } if drivers.empty?
@@ -23,7 +25,7 @@ module Legion
           private
 
           def collect_cost_data(window_days:)
-            return [] unless defined?(Legion::Data) && Legion::Data.respond_to?(:connection) && Legion::Data.connection
+            return [] unless defined?(Legion::Data) && Legion::Data.respond_to?(:connection) && Legion::Data.connection # rubocop:disable Legion/Extension/RunnerReturnHash
 
             cutoff = Time.now.utc - (window_days * 86_400)
             ds = Legion::Data.connection[:metering_records]
@@ -46,7 +48,7 @@ module Legion
                 call_count:   row[:call_count] || 0
               }
             end
-          rescue StandardError
+          rescue StandardError => _e
             []
           end
 
@@ -70,9 +72,9 @@ module Legion
             return { recommendations: [] } unless defined?(Legion::LLM)
 
             prompt = build_recommendation_prompt(drivers)
-            result = Legion::LLM.chat(message: prompt, caller: { extension: 'lex-metering', operation: 'cost_optimization' })
+            result = llm_chat(message: prompt, caller: { extension: 'lex-metering', operation: 'cost_optimization' })
             ::JSON.parse(result[:content] || '{}', symbolize_names: true)
-          rescue StandardError
+          rescue StandardError => _e
             { recommendations: [] }
           end
 

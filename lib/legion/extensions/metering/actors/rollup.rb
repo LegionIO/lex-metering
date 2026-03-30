@@ -4,7 +4,7 @@ module Legion
   module Extensions
     module Metering
       module Actor
-        class Rollup < Legion::Extensions::Actors::Every
+        class Rollup < Legion::Extensions::Actors::Every # rubocop:disable Legion/Extension/EveryActorRequiresTime
           include Legion::Extensions::Actors::Singleton if defined?(Legion::Extensions::Actors::Singleton)
 
           def runner_class

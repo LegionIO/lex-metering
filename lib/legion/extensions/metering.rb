@@ -7,7 +7,7 @@ require 'legion/extensions/metering/runners/rollup'
 module Legion
   module Extensions
     module Metering
-      extend Legion::Extensions::Core if Legion::Extensions.const_defined? :Core
+      extend Legion::Extensions::Core if Legion::Extensions.const_defined? :Core, false
 
       def self.data_required?
         false

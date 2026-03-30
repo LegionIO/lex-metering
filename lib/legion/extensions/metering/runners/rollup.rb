@@ -5,6 +5,8 @@ module Legion
     module Metering
       module Runners
         module Rollup
+          extend self
+
           def rollup_hour(hour: nil, **)
             return { status: 'skipped', reason: 'data_unavailable' } unless data_available?
 
@@ -35,7 +37,7 @@ module Legion
               rolled_up += 1
             end
 
-            Legion::Logging.info "[metering] rollup_hour: hour=#{hour.iso8601} groups=#{rolled_up} raw_records=#{raw_count}"
+            log.info("[metering] rollup_hour: hour=#{hour.iso8601} groups=#{rolled_up} raw_records=#{raw_count}")
             { rolled_up: rolled_up, hour: hour.iso8601, raw_records: raw_count }
           end
 
@@ -47,14 +49,14 @@ module Legion
                                 .where(::Sequel.lit('recorded_at < ?', cutoff))
                                 .delete
 
-            Legion::Logging.info "[metering] purge_raw_records: purged=#{count} retention_days=#{retention_days} cutoff=#{cutoff.iso8601}"
+            log.info("[metering] purge_raw_records: purged=#{count} retention_days=#{retention_days} cutoff=#{cutoff.iso8601}")
             { purged: count, retention_days: retention_days, cutoff: cutoff.iso8601 }
           end
 
           private
 
           def data_available?(table = nil)
-            return false unless defined?(Legion::Data) && Legion::Data.respond_to?(:connection) && Legion::Data.connection
+            return false unless defined?(Legion::Data) && Legion::Data.respond_to?(:connection) && Legion::Data.connection # rubocop:disable Legion/Extension/RunnerReturnHash
 
             if table
               Legion::Data.connection.table_exists?(table)
@@ -65,7 +67,7 @@ module Legion
           end
 
           def resolve_hour(hour)
-            return hour if hour
+            return hour if hour # rubocop:disable Legion/Extension/RunnerReturnHash
 
             now = Time.now.utc
             floored = Time.utc(now.year, now.month, now.day, now.hour)
@@ -73,7 +75,7 @@ module Legion
           end
 
           def build_rollup_row(worker_id, provider, model_id, hour, rows)
-            latencies = rows.map { |r| r[:latency_ms] }.compact
+            latencies = rows.filter_map { |r| r[:latency_ms] }
             avg_latency = latencies.empty? ? 0 : (latencies.sum.to_f / latencies.size).round(2)
 
             {

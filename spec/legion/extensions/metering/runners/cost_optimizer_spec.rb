@@ -5,7 +5,12 @@ require 'spec_helper'
 require 'legion/extensions/metering/runners/cost_optimizer'
 
 RSpec.describe Legion::Extensions::Metering::Runners::CostOptimizer do
-  let(:optimizer) { Class.new { include Legion::Extensions::Metering::Runners::CostOptimizer }.new }
+  let(:optimizer) do
+    Class.new do
+      include Legion::Extensions::Helpers::Lex
+      include Legion::Extensions::Metering::Runners::CostOptimizer
+    end.new
+  end
 
   describe '#analyze_costs' do
     context 'when cost data is available' do
