@@ -21,6 +21,14 @@ module Legion
         def self.included(base)
           base
         end
+
+        def log
+          Legion::Logging
+        end
+
+        def llm_chat(**)
+          Legion::LLM.chat(**)
+        end
       end
     end
 

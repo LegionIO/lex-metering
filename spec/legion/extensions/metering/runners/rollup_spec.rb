@@ -13,7 +13,12 @@ end
 require 'legion/extensions/metering/runners/rollup'
 
 RSpec.describe Legion::Extensions::Metering::Runners::Rollup do
-  let(:runner) { Class.new { include Legion::Extensions::Metering::Runners::Rollup }.new }
+  let(:runner) do
+    Class.new do
+      include Legion::Extensions::Helpers::Lex
+      include Legion::Extensions::Metering::Runners::Rollup
+    end.new
+  end
 
   describe '#rollup_hour' do
     context 'when data is unavailable' do

@@ -5,9 +5,11 @@ module Legion
     module Metering
       module Runners
         module Metering
+          extend self
+
           PERIOD_DAYS = { 'daily' => 1, 'weekly' => 7, 'monthly' => 30 }.freeze
 
-          def record(worker_id: nil, task_id: nil, provider: nil, model_id: nil,
+          def record(worker_id: nil, task_id: nil, provider: nil, model_id: nil, # rubocop:disable Metrics/ParameterLists
                      input_tokens: 0, output_tokens: 0, thinking_tokens: 0,
                      input_context_bytes: 0, latency_ms: 0, routing_reason: nil,
                      wall_clock_ms: 0, cpu_time_ms: 0, external_api_calls: 0,
@@ -36,8 +38,8 @@ module Legion
               recorded_at:         Time.now.utc
             }
 
-            Legion::Logging.debug "[metering] recorded: provider=#{provider} model=#{model_id} " \
-                                  "tokens=#{record[:total_tokens]} latency=#{latency_ms}ms wall_clock=#{wall_clock_ms}ms"
+            log.debug("[metering] recorded: provider=#{provider} model=#{model_id} " \
+                      "tokens=#{record[:total_tokens]} latency=#{latency_ms}ms wall_clock=#{wall_clock_ms}ms")
             record
           end
 
@@ -90,7 +92,7 @@ module Legion
 
             cutoff = Time.now.utc - (retention_days * 86_400)
             count = Legion::Data.connection[:metering_records].where { recorded_at < cutoff }.delete
-            Legion::Logging.info "[metering] cleanup: purged=#{count} retention_days=#{retention_days} cutoff=#{cutoff}"
+            log.info("[metering] cleanup: purged=#{count} retention_days=#{retention_days} cutoff=#{cutoff}")
             { purged: count, retention_days: retention_days, cutoff: cutoff }
           end
 
@@ -98,7 +100,7 @@ module Legion
 
           def apply_period_filter(dataset, period)
             days = PERIOD_DAYS[period]
-            return dataset unless days
+            return dataset unless days # rubocop:disable Legion/Extension/RunnerReturnHash
 
             cutoff = Time.now.utc - (days * 86_400)
             dataset.where(::Sequel.lit('recorded_at >= ?', cutoff))

@@ -76,7 +76,7 @@ module Legion
             return :unknown unless defined?(Legion::Extensions::Synapse)
 
             Legion::Extensions::Synapse::Client.new.autonomy_level(worker_id: worker_id)
-          rescue StandardError
+          rescue StandardError => _e
             :unknown
           end
         end

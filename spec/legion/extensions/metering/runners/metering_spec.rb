@@ -13,7 +13,12 @@ end
 require 'legion/extensions/metering/runners/metering'
 
 RSpec.describe Legion::Extensions::Metering::Runners::Metering do
-  let(:runner) { Class.new { include Legion::Extensions::Metering::Runners::Metering }.new }
+  let(:runner) do
+    Class.new do
+      include Legion::Extensions::Helpers::Lex
+      include Legion::Extensions::Metering::Runners::Metering
+    end.new
+  end
 
   describe '#record' do
     before do

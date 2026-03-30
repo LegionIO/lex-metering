@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.13] - 2026-03-30
+
+### Changed
+- update to rubocop-legion 0.1.7, resolve all offenses
+
 ## [0.1.12] - 2026-03-27
 
 ### Fixed
