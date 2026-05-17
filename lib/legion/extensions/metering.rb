@@ -9,7 +9,7 @@ module Legion
     module Metering
       extend Legion::Extensions::Core if Legion::Extensions.const_defined? :Core, false
 
-      def self.data_required?
+      def self.data_required? # rubocop:disable Legion/Extension/DataRequiredWithoutMigrations
         true
       end
 
