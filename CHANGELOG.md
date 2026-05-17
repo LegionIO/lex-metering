@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.16] - 2026-05-17
+### Fixed
+- Migration 001: remove indexes from `create_table?` block (Sequel creates indexes even when table exists, causing DuplicateTable error)
+- New migration 003: add indexes idempotently via `add_index :col, if_not_exists: true`
+- `routing_stats` GROUP BY query: replace `select_append` with explicit `select` projection to avoid PG::GroupingError on non-aggregate columns
+- Set `data_required? true` so extension loader reliably discovers and runs migrations on fresh installs
+
+## [0.1.14] - 2026-05-03
+### Fixed
+- Cost optimization recommendations now pass prompts directly into native `Legion::LLM.chat` dispatch instead of routing through the legacy nil-input `llm_chat` helper path.
+
 ## [0.1.13] - 2026-03-30
 
 ### Changed

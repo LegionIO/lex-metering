@@ -83,7 +83,7 @@ module Legion
               by_routing_reason:       ds.group_and_count(:routing_reason).all,
               by_provider:             ds.group_and_count(:provider).all,
               by_model:                ds.group_and_count(:model_id).all,
-              avg_latency_by_provider: ds.group(:provider).select_append { avg(latency_ms).as(avg_latency) }.all
+              avg_latency_by_provider: ds.group(:provider).select { [provider, avg(latency_ms).as(avg_latency)] }.all
             }
           end
 
