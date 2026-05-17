@@ -266,9 +266,9 @@ RSpec.describe Legion::Extensions::Metering::Runners::Metering do
       allow(ds).to receive(:group_and_count).with(:model_id).and_return(
         double('by_model', all: by_model_result)
       )
-      allow(ds).to receive(:group).with(:provider).and_return(
-        double('grouped', select_append: double('appended', all: avg_latency_result))
-      )
+      grouped = double('grouped')
+      allow(grouped).to receive(:select).and_return(double('selected', all: avg_latency_result))
+      allow(ds).to receive(:group).with(:provider).and_return(grouped)
       ds
     end
 
@@ -306,9 +306,9 @@ RSpec.describe Legion::Extensions::Metering::Runners::Metering do
       allow(filtered_ds).to receive(:group_and_count).with(:model_id).and_return(
         double('by_model', all: [])
       )
-      allow(filtered_ds).to receive(:group).with(:provider).and_return(
-        double('grouped', select_append: double('appended', all: []))
-      )
+      filtered_grouped = double('filtered_grouped')
+      allow(filtered_grouped).to receive(:select).and_return(double('selected', all: []))
+      allow(filtered_ds).to receive(:group).with(:provider).and_return(filtered_grouped)
 
       result = runner.routing_stats(worker_id: 'worker-abc')
 

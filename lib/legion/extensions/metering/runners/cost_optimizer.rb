@@ -72,8 +72,12 @@ module Legion
             return { recommendations: [] } unless defined?(Legion::LLM)
 
             prompt = build_recommendation_prompt(drivers)
-            result = llm_chat(message: prompt, caller: { extension: 'lex-metering', operation: 'cost_optimization' })
-            ::JSON.parse(result[:content] || '{}', symbolize_names: true)
+            result = Legion::LLM.chat( # rubocop:disable Legion/HelperMigration/DirectLlm
+              message: prompt,
+              caller:  { extension: 'lex-metering', operation: 'cost_optimization' }
+            )
+            content = result.is_a?(Hash) ? result[:content] : result.content
+            ::JSON.parse(content || '{}', symbolize_names: true)
           rescue StandardError => _e
             { recommendations: [] }
           end

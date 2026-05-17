@@ -19,11 +19,6 @@ Sequel.migration do
       Integer :external_api_calls,  null: false, default: 0
       String  :routing_reason,      null: true,  size: 255
       DateTime :recorded_at, null: false, default: Sequel::CURRENT_TIMESTAMP
-
-      index :worker_id
-      index :task_id
-      index :provider
-      index :recorded_at
     end
   end
 
