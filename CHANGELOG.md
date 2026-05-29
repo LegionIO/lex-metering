@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.17] - 2026-05-29
+### Fixed
+- `rollup_hour`: group raw records in Ruby via `records_ds.all.group_by { ... }` instead of `records_ds.group_by { ... }`. `Sequel::Dataset#group_by` is an alias for `#group`, so calling it on the dataset built an invalid SQL `GROUP BY []("worker_id"), ...` clause that PostgreSQL rejected (`PG::SyntaxError: syntax error at or near "["`), failing the hourly rollup actor on every tick.
+- Rollup spec: assert the generated SQL never contains a malformed array `GROUP BY` by exercising a real Sequel mock-postgres connection (previously a dataset double stubbed `group_by` to behave like `Enumerable#group_by`, masking the defect).
+
 ## [0.1.16] - 2026-05-17
 ### Fixed
 - Migration 001: remove indexes from `create_table?` block (Sequel creates indexes even when table exists, causing DuplicateTable error)

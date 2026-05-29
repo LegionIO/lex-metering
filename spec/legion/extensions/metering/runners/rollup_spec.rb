@@ -62,7 +62,9 @@ RSpec.describe Legion::Extensions::Metering::Runners::Rollup do
         ds = double('records_dataset')
         allow(ds).to receive(:where).and_return(ds)
         allow(ds).to receive(:count).and_return(sample_records.size)
-        allow(ds).to receive(:group_by) { |&blk| sample_records.group_by(&blk) }
+        # rollup_hour materialises the dataset with #all and groups in Ruby; it must NOT
+        # call Sequel::Dataset#group_by (an alias for #group that would build SQL GROUP BY).
+        allow(ds).to receive(:all).and_return(sample_records)
         ds
       end
 
@@ -135,6 +137,15 @@ RSpec.describe Legion::Extensions::Metering::Runners::Rollup do
 
       it 'logs an info message' do
         expect(Legion::Logging).to receive(:info).with(a_string_including('[metering] rollup_hour:'))
+        runner.rollup_hour
+      end
+
+      it 'groups in Ruby by materialising the dataset rather than building a SQL GROUP BY' do
+        # Regression for the malformed `GROUP BY []("worker_id"), ...` PG::SyntaxError:
+        # Sequel::Dataset#group_by is an alias for #group, so it must not be called on the
+        # dataset. The runner must instead fetch rows with #all and group the array in Ruby.
+        expect(records_ds).to receive(:all).and_return(sample_records)
+        expect(records_ds).not_to receive(:group_by)
         runner.rollup_hour
       end
     end
@@ -226,6 +237,46 @@ RSpec.describe Legion::Extensions::Metering::Runners::Rollup do
 
     it 'responds to purge_raw_records' do
       expect(runner).to respond_to(:purge_raw_records)
+    end
+  end
+
+  # End-to-end SQL regression: run rollup_hour against a real Sequel mock postgres
+  # connection and assert none of the SQL it emits is the malformed grouping clause
+  # that PostgreSQL rejected (`GROUP BY []("worker_id"), ...`, syntax error at "[").
+  # Doubles cannot catch this because they cannot reproduce Sequel's group_by/group
+  # aliasing, so this guards the actual SQL generation.
+  describe '#rollup_hour generated SQL', if: defined?(Sequel) && Sequel.respond_to?(:mock) do
+    let(:mock_db) do
+      Sequel.mock(
+        host:  'postgres',
+        fetch: [
+          { worker_id: 'w1', provider: 'anthropic', model_id: 'claude-sonnet-4-6',
+            input_tokens: 100, output_tokens: 50, thinking_tokens: 10,
+            cost_usd: 0.005, latency_ms: 800 }
+        ]
+      )
+    end
+
+    before do
+      stub_const('Legion::Data', double('Legion::Data', connection: mock_db))
+      allow(Legion::Data).to receive(:respond_to?).with(:connection).and_return(true)
+      stub_const('Legion::Logging', double('Legion::Logging'))
+      allow(Legion::Logging).to receive(:info)
+    end
+
+    it 'never emits a malformed array GROUP BY clause' do
+      runner.rollup_hour(hour: Time.utc(2026, 5, 29, 9, 0, 0))
+
+      expect(mock_db.sqls).not_to be_empty
+      expect(mock_db.sqls).to all(satisfy { |sql| !sql.include?('GROUP BY [') })
+    end
+
+    it 'selects the raw records with a well-formed WHERE-only query' do
+      runner.rollup_hour(hour: Time.utc(2026, 5, 29, 9, 0, 0))
+
+      select = mock_db.sqls.find { |sql| sql.start_with?('SELECT * FROM "metering_records"') }
+      expect(select).to include('WHERE')
+      expect(select).not_to include('GROUP BY')
     end
   end
 end
