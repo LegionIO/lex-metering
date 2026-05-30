@@ -17,7 +17,11 @@ module Legion
                                      .where(::Sequel.lit('recorded_at >= ? AND recorded_at < ?', hour, hour_end))
 
             raw_count = records_ds.count
-            groups = records_ds.group_by { |r| [r[:worker_id], r[:provider], r[:model_id]] }
+            # Group in Ruby, not in SQL: Sequel::Dataset#group_by is an alias for #group
+            # (it builds a SQL GROUP BY clause), so calling it on the dataset emits invalid
+            # SQL (GROUP BY []("worker_id"), ...) instead of the intended in-memory grouping.
+            # Materialise the rows first, then use Enumerable#group_by on the array.
+            groups = records_ds.all.group_by { |r| [r[:worker_id], r[:provider], r[:model_id]] }
 
             rollup_dataset = Legion::Data.connection[:metering_hourly_rollup]
             rolled_up = 0
